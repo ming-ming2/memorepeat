@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>메모리핏 - 스마트 복습 플래너</title>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- 로그인 화면 -->
+    <div id="login-container">
+      <!-- 장식 요소 -->
+      <div class="login-decoration decoration-1"></div>
+      <div class="login-decoration decoration-2"></div>
+      <div class="login-decoration decoration-3"></div>
+
+      <div class="login-content">
+        <div class="login-header">
+          <h1>메모리핏 <span class="emoji-icon">🧠</span></h1>
+          <p>효과적인 기억력 관리를 위한 스마트 복습 플래너</p>
+        </div>
+
+        <div class="social-login-container">
+          <button id="google-login" class="social-login-btn">
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png"
+              alt="Google"
+            />
+            Google로 시작하기
+          </button>
+          <button id="naver-login" class="social-login-btn">
+            <img
+              src="https://play-lh.googleusercontent.com/V_PyLTnSGSMvK4JCdPjNMsPJ-eKkWcAfpkkK7OapEF_CYRr5Ujlqy_wGbQdZ0xgOpg"
+              alt="Naver"
+            />
+            네이버로 시작하기
+          </button>
+          <button id="kakao-login" class="social-login-btn">
+            <img
+              src="https://play-lh.googleusercontent.com/Ob9Ys8yKMeyKzZvl3cB9JNtDo70OSSE7M9n6b2XQCeFvWUhQr9oLZIX_-EhZUJH9_RSu"
+              alt="Kakao"
+            />
+            카카오로 시작하기
+          </button>
+        </div>
+
+        <div class="welcome-text">
+          <p>
+            "언제 다시 복습하지?" 이런 고민은 이제 그만! 메모리핏과 함께
+            효과적인 학습을 이어가세요.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 닉네임 설정 모달 -->
+    <div id="nickname-modal">
+      <div class="nickname-modal-content">
+        <h2>닉네임 설정</h2>
+        <p>사용할 닉네임을 입력해주세요.</p>
+        <div class="nickname-input-group">
+          <input type="text" id="nickname-input" placeholder="닉네임 입력" />
+          <button id="save-nickname-btn">저장하기</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 메인 앱 -->
+    <div id="app-container" style="display: none">
+      <div class="container">
+        <header>
+          <h1>치매예방 <span class="emoji-icon">🧠</span></h1>
+          <p>효과적인 기억력 관리를 위한 스마트 복습 플래너</p>
+
+          <!-- 사용자 정보 영역 -->
+          <div class="user-info">
+            <span id="user-nickname">닉네임 로딩 중...</span>
+            <button id="change-nickname-btn">닉네임 변경</button>
+            <button id="logout-btn">로그아웃</button>
+          </div>
+        </header>
+
+        <div class="tabs">
+          <div class="tab active" data-tab="new-learning">
+            <span>✏️</span>신규 학습
+          </div>
+          <div class="tab" data-tab="review"><span>🔄</span>복습 내용</div>
+        </div>
+
+        <div class="content">
+          <div class="tab-content active" id="new-learning">
+            <div class="info-box">
+              <span>💡</span>
+              <p>
+                오늘 공부한 내용을 기록하면 최적의 복습 일정이 자동으로
+                설정됩니다. 꾸준한 복습으로 기억력을 향상시켜보세요!
+              </p>
+            </div>
+
+            <div class="input-group">
+              <input
+                type="text"
+                id="new-learning-input"
+                placeholder="오늘 배운 내용을 입력하세요"
+              />
+              <button id="add-learning-btn" class="add-btn">추가하기 ✨</button>
+            </div>
+
+            <div class="section-title">
+              <h2>오늘의 신규 학습</h2>
+              <div class="title-buttons">
+                <span class="count-badge" id="new-count">0</span>
+                <button id="complete-all-new" class="complete-all-btn">
+                  모두 완료 ✅
+                </button>
+              </div>
+            </div>
+
+            <ul id="new-learning-list">
+              <li class="empty-message" id="empty-new">
+                아직 추가된 학습 내용이 없습니다 ✏️
+              </li>
+            </ul>
+          </div>
+
+          <div class="tab-content" id="review">
+            <div class="info-box">
+              <span>🧠</span>
+              <p>
+                과학적인 망각곡선 이론에 따라 오늘 복습해야 할 내용입니다.
+                효과적인 복습으로 장기 기억으로 전환하세요!
+              </p>
+            </div>
+
+            <div class="section-title">
+              <h2>오늘의 복습</h2>
+              <div class="title-buttons">
+                <span class="count-badge" id="review-count">0</span>
+                <button id="complete-all-review" class="complete-all-btn">
+                  모두 완료 ✅
+                </button>
+              </div>
+            </div>
+
+            <ul id="review-list">
+              <li class="empty-message" id="empty-review">
+                오늘 복습할 내용이 없습니다 🎉
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 성공 메시지 모달 -->
+        <div id="success-overlay" style="display: none">
+          <div>
+            <div id="confetti-container"></div>
+            <span id="success-emoji">🎉</span>
+            <h2 class="success-title">축하합니다!</h2>
+            <p id="success-message">오늘의 모든 학습을 완료했습니다!</p>
+            <button id="success-close-btn">확인</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formatting -->
+
+    <!-- Firebase 및 앱 스크립트 -->
+    <script src="./config.js"></script>
+
+    <script src="script.js"></script>
+  </body>
+</html>
