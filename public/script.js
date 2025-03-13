@@ -30,6 +30,11 @@ const successEmoji = document.getElementById("success-emoji");
 const successMessage = document.getElementById("success-message");
 const successCloseBtn = document.getElementById("success-close-btn");
 const confettiContainer = document.getElementById("confetti-container");
+// DOM 요소 추가
+const emailInput = document.getElementById("email-input");
+const passwordInput = document.getElementById("password-input");
+const emailLoginBtn = document.getElementById("email-login");
+const emailSignupBtn = document.getElementById("email-signup");
 
 // 현재 로그인한 사용자
 let currentUser = null;
@@ -78,14 +83,78 @@ function initApp() {
     });
   });
 
-  naverLoginBtn.addEventListener("click", () => {
-    alert("네이버 로그인은 Firebase 프로젝트에서 별도 설정이 필요합니다.");
-    // 네이버 로그인 구현 (OIDC 또는 커스텀 인증)
+  // 이메일 로그인
+  emailLoginBtn.addEventListener("click", async () => {
+    const email = emailInput.value;
+    const password = passwordInput.value;
+
+    try {
+      await auth.signInWithEmailAndPassword(email, password);
+    } catch (error) {
+      console.error("이메일 로그인 오류:", error);
+      alert("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
+    }
   });
 
-  kakaoLoginBtn.addEventListener("click", () => {
-    alert("카카오 로그인은 Firebase 프로젝트에서 별도 설정이 필요합니다.");
-    // 카카오 로그인 구현 (OIDC 또는 커스텀 인증)
+  // 이메일 유효성 검사 함수
+  async function validateEmail(email) {
+    // 이메일 형식 검사
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      throw new Error("유효한 이메일 주소를 입력해주세요.");
+    }
+
+    // 이메일 중복 검사
+    try {
+      const methods = await auth.fetchSignInMethodsForEmail(email);
+      if (methods.length > 0) {
+        throw new Error("이미 사용 중인 이메일입니다.");
+      }
+    } catch (error) {
+      if (error.code === "auth/invalid-email") {
+        throw new Error("유효하지 않은 이메일 형식입니다.");
+      }
+      throw error;
+    }
+  }
+
+  // 비밀번호 유효성 검사 함수
+  function validatePassword(password) {
+    if (password.length < 6) {
+      throw new Error("비밀번호는 최소 6자 이상이어야 합니다.");
+    }
+  }
+
+  // 회원가입 함수 수정
+  emailSignupBtn.addEventListener("click", async () => {
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    try {
+      await auth.createUserWithEmailAndPassword(email, password);
+      emailInput.value = "";
+      passwordInput.value = "";
+    } catch (error) {
+      console.error("회원가입 오류:", error);
+
+      // 에러 메시지 커스텀
+      let errorMessage;
+      switch (error.code) {
+        case "auth/email-already-in-use":
+          errorMessage =
+            "이미 사용 중인 이메일입니다. 다른 이메일을 입력해주세요.";
+          break;
+        case "auth/invalid-email":
+          errorMessage = "유효하지 않은 이메일 형식입니다.";
+          break;
+        case "auth/weak-password":
+          errorMessage = "비밀번호는 최소 6자 이상이어야 합니다.";
+          break;
+        default:
+          errorMessage = "회원가입 중 오류가 발생했습니다. 다시 시도해주세요.";
+      }
+      alert(errorMessage);
+    }
   });
 
   // 닉네임 변경 이벤트
