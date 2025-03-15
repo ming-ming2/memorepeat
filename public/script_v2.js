@@ -1011,6 +1011,14 @@ async function completeAllItems(isReview) {
 async function deleteItem(id) {
   if (!currentUser) return;
 
+  // 삭제 확인 다이얼로그 표시
+  const confirmed = confirm("정말 이 항목을 삭제하시겠습니까?");
+
+  // 사용자가 취소를 누른 경우
+  if (!confirmed) {
+    return;
+  }
+
   const itemIndex = learningData.findIndex((item) => item.id === id);
   if (itemIndex === -1) return;
 
