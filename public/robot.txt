@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://memorepeat.com/sitemap.xml

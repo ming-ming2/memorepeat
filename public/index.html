@@ -3,14 +3,55 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="메모리핏 - 과학적인 에빙하우스 망각곡선에 기반한 효과적인 기억력 관리를 위한 스마트 복습 플래너"
+    />
+    <meta
+      name="keywords"
+      content="복습 플래너, 에빙하우스, 망각곡선, 기억력 향상, 학습 관리, 스마트 플래너"
+    />
+    <meta name="author" content="메모리핏" />
+    <meta name="robots" content="index, follow" />
     <title>메모리핏 - 스마트 복습 플래너</title>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <!-- Favicon 설정 -->
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="android-chrome-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="512x512"
+      href="android-chrome-512x512.png"
+    />
+    <link rel="shortcut icon" href="favicon.ico" />
 
-    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="android-chrome-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="512x512"
+      href="android-chrome-512x512.png"
+    />
+    <link rel="shortcut icon" href="favicon.ico" />
+
+    <link rel="stylesheet" href="style_v2.css" />
   </head>
   <body>
     <!-- 로그인 화면 -->
@@ -68,13 +109,6 @@
             </button>
           </div>
         </div>
-
-        <div class="welcome-text">
-          <p>
-            "언제 다시 복습하지?" 이런 고민은 이제 그만! 메모리핏과 함께
-            효과적인 학습을 이어가세요.
-          </p>
-        </div>
       </div>
     </div>
 
@@ -123,11 +157,11 @@
             </div>
 
             <div class="input-group">
-              <input
-                type="text"
+              <textarea
                 id="new-learning-input"
-                placeholder="오늘 배운 내용을 입력하세요"
-              />
+                placeholder="오늘 학습할 내용을 입력하세요 (여러 줄 입력 가능)"
+                rows="2"
+              ></textarea>
               <button id="add-learning-btn" class="add-btn">추가하기 ✨</button>
             </div>
 
@@ -193,6 +227,6 @@
     <!-- Firebase 및 앱 스크립트 -->
     <script src="./config.js"></script>
 
-    <script src="script.js"></script>
+    <script src="script_v2.js"></script>
   </body>
 </html>
