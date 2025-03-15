@@ -619,9 +619,9 @@ async function addNewLearning() {
   today.setHours(0, 0, 0, 0);
 
   try {
-    // 복습 날짜 계산
-    const reviewDates = calculateReviewDates(today);
-    console.log("신규 학습 복습 날짜:", reviewDates);
+    // 중요 변경: 처음에는 빈 reviewDates 배열 사용
+    // (완료 버튼을 누를 때 복습 일정이 생성됨)
+    const reviewDates = [];
 
     // Firestore에 직접 추가
     const newItemRef = await db
@@ -631,7 +631,7 @@ async function addNewLearning() {
       .add({
         content: content,
         dateCreated: firebase.firestore.Timestamp.fromDate(today),
-        reviewDates: reviewDates,
+        reviewDates: reviewDates, // 빈 배열로 시작
         completedReviews: [],
         completed: false,
         isNewLearning: true,
@@ -643,7 +643,7 @@ async function addNewLearning() {
       id: newItemRef.id,
       content: content,
       dateCreated: today.toISOString(),
-      reviewDates: reviewDates,
+      reviewDates: reviewDates, // 빈 배열로 시작
       completedReviews: [],
       completed: false,
       isNewLearning: true,
@@ -743,8 +743,18 @@ async function completeItem(id, isReview = false, skipAnimation = false) {
           `복습 완료 처리: ${oldestPendingDate} 날짜의 복습을 완료했습니다.`
         );
       } else {
-        // 신규 학습 완료 처리 - learningCompleted만 true로 설정
+        // 신규 학습 완료 처리
+
+        // 중요 변경: 학습 완료시 복습 일정 생성
+        const baseDate = new Date();
+        baseDate.setHours(0, 0, 0, 0);
+
+        // 복습 날짜 계산
+        const reviewDates = calculateReviewDates(baseDate);
+
+        // 항목 상태 업데이트
         item.learningCompleted = true;
+        item.reviewDates = reviewDates; // 새로 계산된 복습 일정 추가
 
         // Firestore 업데이트
         await db
@@ -754,9 +764,12 @@ async function completeItem(id, isReview = false, skipAnimation = false) {
           .doc(id)
           .update({
             learningCompleted: true,
+            reviewDates: reviewDates, // 복습 일정 업데이트
           });
 
-        console.log(`신규 학습 완료 처리: 항목 학습을 완료했습니다.`);
+        console.log(
+          `신규 학습 완료 처리: 항목 학습을 완료했습니다. 복습 일정이 생성되었습니다.`
+        );
       }
 
       // UI 업데이트
@@ -774,7 +787,7 @@ async function completeItem(id, isReview = false, skipAnimation = false) {
   };
 
   if (itemElement && !skipAnimation) {
-    // 간단한 완료 애니메이션만 적용
+    // 애니메이션 및 효과 (기존 코드 그대로 유지)
     itemElement.classList.add("celebrating");
 
     // 체크마크 효과 표시
@@ -895,9 +908,8 @@ async function completeAllItems(isReview) {
   let itemsToComplete = [];
 
   if (isReview) {
-    // 오늘 복습할 항목 찾기
+    // 복습 항목 찾기 (기존 코드 유지)
     itemsToComplete = learningData.filter((item) => {
-      // 오늘이나 이전 날짜 중 아직 완료하지 않은 복습이 있는지 확인
       const pendingReviews = item.reviewDates.filter(
         (date) =>
           new Date(date) <= new Date(today) &&
@@ -937,38 +949,41 @@ async function completeAllItems(isReview) {
       const itemRef = itemsRef.doc(item.id);
 
       if (isReview) {
-        // 복습 완료 처리
-        // 가장 오래된 대기 중인 복습 날짜 찾기
+        // 복습 완료 처리 (기존 코드 유지)
         const pendingReviews = item.reviewDates.filter(
           (date) =>
             new Date(date) <= new Date(today) &&
             !item.completedReviews.includes(date)
         );
 
-        // 날짜 정렬
         pendingReviews.sort((a, b) => new Date(a) - new Date(b));
 
-        // 가장 오래된 복습 날짜
         if (pendingReviews.length > 0) {
           const oldestPendingDate = pendingReviews[0];
 
-          // 복습 완료 처리
           if (!item.completedReviews.includes(oldestPendingDate)) {
             item.completedReviews.push(oldestPendingDate);
           }
 
-          // Firestore 업데이트
           batch.update(itemRef, {
             completedReviews: item.completedReviews,
           });
         }
       } else {
-        // 신규 학습 완료 처리
+        // 신규 학습 완료 처리 - 수정된 부분
+
+        // 복습 일정 계산
+        const baseDate = new Date();
+        baseDate.setHours(0, 0, 0, 0);
+        const reviewDates = calculateReviewDates(baseDate);
+
         item.learningCompleted = true;
+        item.reviewDates = reviewDates; // 복습 일정 추가
 
         // Firestore 업데이트
         batch.update(itemRef, {
           learningCompleted: true,
+          reviewDates: reviewDates, // 복습 일정 추가
         });
       }
     }
